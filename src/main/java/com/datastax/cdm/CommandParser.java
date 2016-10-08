@@ -30,6 +30,9 @@ public class CommandParser {
         updateCommand = new UpdateCommand();
         jc.addCommand("update", updateCommand);
 
+        DumpCommand dumpCommand = new DumpCommand();
+        jc.addCommand("dump", dumpCommand);
+
         jc.parse(args);
     }
 }
