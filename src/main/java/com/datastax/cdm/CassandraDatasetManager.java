@@ -156,7 +156,6 @@ public class CassandraDatasetManager {
         // for now i'm using local
         System.out.println("Installing " + command.datasets);
 
-
         String cdmDir = System.getProperty("user.home") + "/.cdm/";
 
         String schema;

@@ -11,6 +11,7 @@ public class CommandParser {
     NewCommand newCommand;
     ListCommand listCommand;
     UpdateCommand updateCommand;
+    DumpCommand dumpCommand;
     JCommander jc;
 
     CommandParser(String[] args) {
@@ -30,7 +31,7 @@ public class CommandParser {
         updateCommand = new UpdateCommand();
         jc.addCommand("update", updateCommand);
 
-        DumpCommand dumpCommand = new DumpCommand();
+        dumpCommand = new DumpCommand();
         jc.addCommand("dump", dumpCommand);
 
         jc.parse(args);
