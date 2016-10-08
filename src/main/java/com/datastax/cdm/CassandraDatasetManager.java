@@ -302,27 +302,7 @@ public class CassandraDatasetManager {
 
             int totalComplete = 0;
             List<ResultSetFuture> futures = new ArrayList<>();
-            for(CSVRecord record: records) {
-                // generate a CQL statement
-                String cql = null;
-                try {
-                    cql = generateCQL(table, record, fieldlist);
-
-                    ResultSetFuture future = session.executeAsync(cql);
-                    futures.add(future);
-                    totalComplete++;
-                    if(totalComplete % 100 == 0) {
-                        futures.forEach(ResultSetFuture::getUninterruptibly);
-                        futures.clear();
-                    }
-                    System.out.print("Complete: " + totalComplete + "\r");
-
-                } catch (InvalidArgsException e) {
-                    e.printStackTrace();
-                    System.out.println(record);
-                }
-
-            }
+            insertRecords(session, table, records, fieldlist, totalComplete, futures);
             futures.forEach(ResultSetFuture::getUninterruptibly);
             futures.clear();
             System.out.println("Done importing " + table);
@@ -330,6 +310,30 @@ public class CassandraDatasetManager {
 
         cluster.close();
         System.out.println("Loading data");
+    }
+
+    public void insertRecords(Session session, String table, Iterable<CSVRecord> records, ArrayList<Field> fieldlist, int totalComplete, List<ResultSetFuture> futures) {
+        for(CSVRecord record: records) {
+            // generate a CQL statement
+            String cql = null;
+            try {
+                cql = generateCQL(table, record, fieldlist);
+
+                ResultSetFuture future = session.executeAsync(cql);
+                futures.add(future);
+                totalComplete++;
+                if(totalComplete % 100 == 0) {
+                    futures.forEach(ResultSetFuture::getUninterruptibly);
+                    futures.clear();
+                }
+                System.out.print("Complete: " + totalComplete + "\r");
+
+            } catch (InvalidArgsException e) {
+                e.printStackTrace();
+                System.out.println(record);
+            }
+
+        }
     }
 
     CSVParser openCSV(String path) throws IOException {
