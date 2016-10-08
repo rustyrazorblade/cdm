@@ -63,19 +63,8 @@ public class CassandraDatasetManager {
     public static void main(String[] args) throws IOException, InterruptedException, GitAPIException {
 
         System.out.println("Starting CDM");
-        BaseCommand argParser = new BaseCommand();
 
-        JCommander jc = new JCommander(argParser);
-
-        InstallCommand installCommand = new InstallCommand();
-        jc.addCommand("install", installCommand);
-
-        NewCommand newCommand = new NewCommand();
-        jc.addCommand("new", newCommand);
-
-        ListCommand listCommand = new ListCommand();
-        jc.addCommand("list", listCommand);
-        jc.parse(args);
+        CommandParser parser = new CommandParser(args);
 
         // check for the .cdm directory
         String home_dir = System.getProperty("user.home");
@@ -97,20 +86,20 @@ public class CassandraDatasetManager {
         // why extra work? Java Type Erasure will prevent type detection otherwise
         Map<String, Dataset> data = mapper.readValue(yaml, new TypeReference<Map<String, Dataset>>() {} );
 
-        CassandraDatasetManager cdm = new CassandraDatasetManager(argParser, data);
+        CassandraDatasetManager cdm = new CassandraDatasetManager(parser.argParser, data);
 
-        String command = jc.getParsedCommand();
+        String command = parser.jc.getParsedCommand();
 
         // connect to the cluster via the driver
         switch (command) {
             case "install":
-                cdm.install(installCommand);
+                cdm.install(parser.installCommand);
                 break;
             case "list":
                 cdm.list();
                 break;
             case "new":
-                cdm.new_dataset(newCommand);
+                cdm.new_dataset(parser.newCommand);
                 break;
             case "dump":
                 cdm.dump();
@@ -119,7 +108,7 @@ public class CassandraDatasetManager {
                 cdm.update();
                 break;
             default:
-                jc.usage();
+                parser.jc.usage();
                 cdm.printHelp();
 
         }
