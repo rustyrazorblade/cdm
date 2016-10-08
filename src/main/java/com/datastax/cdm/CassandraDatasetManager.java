@@ -394,9 +394,17 @@ public class CassandraDatasetManager {
 
     void list() {
         System.out.println("Datasets: ");
+        int maxLen = 0;
+        for(String s : datasets.keySet() ) {
+            if(s.length() > maxLen) {
+                maxLen = s.length();
+            }
+        }
+
+        String format = "%-" + Integer.toString(maxLen + 2) + "s %s\n";
 
         for(Map.Entry<String, Dataset> dataset : datasets.entrySet()) {
-            System.out.println(dataset.getKey());
+            System.out.printf(format, dataset.getKey(), dataset.getValue().description);
         }
     }
     void printHelp() {
