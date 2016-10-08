@@ -5,7 +5,6 @@ import com.datastax.driver.core.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.google.common.util.concurrent.ListenableFuture;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -41,22 +40,22 @@ public class CassandraDatasetManager {
     private Session session;
     private String cassandraContactPoint;
     private String host;
-    private CDMArgs args;
+    private CommandParser args;
     public String relative_schema_path = "schema.cql";
 
 
     CassandraDatasetManager() {
         String[] args = {};
-        CDMArgs parsedArgs = new CDMArgs();
+        CommandParser parsedArgs = new CommandParser();
         new JCommander(parsedArgs, args);
 
         this.host = "localhost";
         this.args = parsedArgs;
     }
 
-    CassandraDatasetManager(CDMArgs args, Map<String, Dataset> datasets) {
+    CassandraDatasetManager(CommandParser args, Map<String, Dataset> datasets) {
         this.datasets = datasets;
-        this.host = args.host;
+//        this.host = args.host;
         this.args = args;
     }
 
@@ -64,9 +63,19 @@ public class CassandraDatasetManager {
     public static void main(String[] args) throws IOException, InterruptedException, GitAPIException {
 
         System.out.println("Starting CDM");
-        CDMArgs parsedArgs = new CDMArgs();
-        JCommander jc = new JCommander(parsedArgs, args);
+        CommandParser argParser = new CommandParser();
 
+        JCommander jc = new JCommander(argParser);
+
+        InstallCommand installCommand = new InstallCommand();
+        jc.addCommand("install", installCommand);
+
+        NewCommand newCommand = new NewCommand();
+        jc.addCommand("new", newCommand);
+
+        ListCommand listCommand = new ListCommand();
+        jc.addCommand("list", listCommand);
+        jc.parse(args);
 
         // check for the .cdm directory
         String home_dir = System.getProperty("user.home");
@@ -88,30 +97,26 @@ public class CassandraDatasetManager {
         // why extra work? Java Type Erasure will prevent type detection otherwise
         Map<String, Dataset> data = mapper.readValue(yaml, new TypeReference<Map<String, Dataset>>() {} );
 
-        // debug: show all datasets no matter what
-        CassandraDatasetManager cdm = new CassandraDatasetManager(parsedArgs, data);
+        CassandraDatasetManager cdm = new CassandraDatasetManager(argParser, data);
 
-        // create a cluster and session
-
-        // TODO: actually use the parsed options to install the requested dataset
-        // for now i'm using the one included with CDM to test
-        // load schema using cqlsh - should this use a normal CSV loader eventually?
         if(args.length == 0) {
             cdm.printHelp();
             jc.usage();
             return;
         }
 
+        String command = jc.getParsedCommand();
+
         // connect to the cluster via the driver
-        switch (parsedArgs.command.get(0)) {
+        switch (command) {
             case "install":
-                cdm.install(parsedArgs.command.get(1));
+                cdm.install(installCommand);
                 break;
             case "list":
                 cdm.list();
                 break;
             case "new":
-                cdm.new_dataset(parsedArgs.command.get(1));
+                cdm.new_dataset(newCommand);
                 break;
             case "dump":
                 cdm.dump();
@@ -147,25 +152,26 @@ public class CassandraDatasetManager {
 
     }
 
-    private void new_dataset(String arg) throws FileNotFoundException, UnsupportedEncodingException {
-        System.out.println("Creating new dataset " + arg);
-        File f = new File(arg);
+    private void new_dataset(NewCommand newCommand) throws FileNotFoundException, UnsupportedEncodingException {
+        String name = newCommand.dataset.get(0);
+        System.out.println("Creating new dataset " + name);
+        File f = new File(name);
         f.mkdir();
-        String conf = arg + "/" + "cdm.yaml";
+        String conf = name + "/" + "cdm.yaml";
         PrintWriter config = new PrintWriter(conf, "UTF-8");
-        String sample_conf = "keyspace: " + arg + "\n" +
+        String sample_conf = "keyspace: " + name + "\n" +
                 "tables:\n" +
                 "    - tablename\n" +
                 "version: 2.1";
         config.println(sample_conf);
         config.close();
-        File data_dir = new File(arg + "/data");
+        File data_dir = new File(name + "/data");
         data_dir.mkdir();
     }
 
-    void install(String name) throws IOException, InterruptedException, GitAPIException {
+    void install(InstallCommand command) throws IOException, InterruptedException, GitAPIException {
         // for now i'm using local
-        System.out.println("Installing " + name);
+        System.out.println("Installing " + command.datasets);
 
 
         String cdmDir = System.getProperty("user.home") + "/.cdm/";
@@ -174,7 +180,7 @@ public class CassandraDatasetManager {
         String dataPath;
         String configLocation;
         String path;
-
+        String name = command.datasets.get(0);
         // temp variables that need to change depending on the dataset
 
         // we're dealing with a request to install a local dataset
@@ -246,7 +252,7 @@ public class CassandraDatasetManager {
         Cluster cluster = Cluster.builder().addContactPoint(address).build();
         Session session = cluster.connect();
 
-        Integer rf = this.args.rf;
+        Integer rf = command.rf;
         StringBuilder createKeyspace = new StringBuilder();
         createKeyspace.append(" CREATE KEYSPACE ")
                 .append(config.keyspace)
@@ -279,7 +285,7 @@ public class CassandraDatasetManager {
         }
 
         // skip the data load
-        if(args.noData) {
+        if(command.noData) {
             System.out.println("Not loading up data, skipping");
             cluster.close();
             return;
