@@ -8,6 +8,7 @@ import org.junit.Test;
 public class InstallCommandTest {
     @Test
     public void testLocalInstall() {
-
+        String[] args = new String[]{"install", "."};
+        CommandParser p = new CommandParser(args);
     }
 }

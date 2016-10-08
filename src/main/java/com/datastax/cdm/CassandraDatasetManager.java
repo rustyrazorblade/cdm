@@ -175,7 +175,6 @@ public class CassandraDatasetManager {
         File configFile =  new File(configLocation);
 
         // load the yaml
-
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
         Config config = mapper.readValue(configFile, Config.class);
@@ -203,6 +202,7 @@ public class CassandraDatasetManager {
 
         System.out.println("Dropping keyspace");
         session.execute("DROP KEYSPACE IF EXISTS " + config.keyspace);
+
         Thread.sleep(2000);
 
         System.out.println(createKeyspace);

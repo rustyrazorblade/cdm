@@ -1,6 +1,6 @@
 # Cassandra Dataset Manager
 
-Cassandra Dataset Manager, referred to simply as `cdm`, is a tool to learn how to use Cassandra.
+Cassandra Dataset Manager, referred to simply as `cdm`, is a tool to learn how to use Apache Cassandra.
 
 The easiest way to get started is to [download cdm](https://github.com/riptano/cdm-java/releases/download/0.11/cdm) and put it somewhere in your path. 
 
