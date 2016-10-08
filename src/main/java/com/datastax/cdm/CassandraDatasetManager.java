@@ -109,7 +109,6 @@ public class CassandraDatasetManager {
                 break;
             default:
                 parser.jc.usage();
-                cdm.printHelp();
 
         }
         System.out.println("Finished.");

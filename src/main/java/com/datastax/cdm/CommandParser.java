@@ -12,12 +12,14 @@ public class CommandParser {
     ListCommand listCommand;
     UpdateCommand updateCommand;
     DumpCommand dumpCommand;
+    HelpCommand helpCommand;
     JCommander jc;
 
     CommandParser(String[] args) {
         argParser = new BaseCommand();
 
         jc = new JCommander(argParser);
+        jc.setProgramName("Cassandra Dataset Manager");
 
         installCommand = new InstallCommand();
         jc.addCommand("install", installCommand);
@@ -33,6 +35,9 @@ public class CommandParser {
 
         dumpCommand = new DumpCommand();
         jc.addCommand("dump", dumpCommand);
+
+        helpCommand = new HelpCommand();
+        jc.addCommand("help", helpCommand);
 
         jc.parse(args);
     }

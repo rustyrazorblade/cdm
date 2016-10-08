@@ -1,6 +1,7 @@
 package com.datastax.cdm;
 
 import com.beust.jcommander.Parameter;
+import com.beust.jcommander.Parameters;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.List;
 /**
  * Created by jhaddad on 10/7/16.
  */
+@Parameters(commandDescription = "Install")
 public class InstallCommand {
 
     @Parameter(names = {"--host", "-h"}, description = "Hostname of node in cluster")
