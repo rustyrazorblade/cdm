@@ -216,15 +216,21 @@ public class CassandraDatasetManager {
         createTables(schema, session);
 
         // skip the data load
-        if(command.noData) {
-            System.out.println("Not loading up data, skipping");
-            cluster.close();
-            return;
+        try {
+            if(command.noData) {
+                System.out.println("Not loading up data, skipping");
+            }
+            else {
+                System.out.println("Loading data");
+                loadAllTAbles(dataPath, config, cluster, session);
+            }
         }
-        System.out.println("Loading data");
+        finally {
+            cluster.close();
+        }
+    }
 
-        this.session = session;
-
+    private void loadAllTAbles(String dataPath, Config config, Cluster cluster, Session session) throws IOException {
         for(String table: config.tables) {
             String dataFile = dataPath + table + ".csv";
             Iterable<CSVRecord> records = openCSV(dataFile);
@@ -257,9 +263,6 @@ public class CassandraDatasetManager {
             futures.clear();
             System.out.println("Done importing " + table);
         }
-
-        cluster.close();
-        System.out.println("Loading data");
     }
 
     private void createTables(String schema, Session session) throws IOException, InterruptedException {
