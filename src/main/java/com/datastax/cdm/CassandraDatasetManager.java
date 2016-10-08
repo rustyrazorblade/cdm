@@ -40,20 +40,20 @@ public class CassandraDatasetManager {
     private Session session;
     private String cassandraContactPoint;
     private String host;
-    private CommandParser args;
+    private BaseCommand args;
     public String relative_schema_path = "schema.cql";
 
 
     CassandraDatasetManager() {
         String[] args = {};
-        CommandParser parsedArgs = new CommandParser();
+        BaseCommand parsedArgs = new BaseCommand();
         new JCommander(parsedArgs, args);
 
         this.host = "localhost";
         this.args = parsedArgs;
     }
 
-    CassandraDatasetManager(CommandParser args, Map<String, Dataset> datasets) {
+    CassandraDatasetManager(BaseCommand args, Map<String, Dataset> datasets) {
         this.datasets = datasets;
 //        this.host = args.host;
         this.args = args;
@@ -63,7 +63,7 @@ public class CassandraDatasetManager {
     public static void main(String[] args) throws IOException, InterruptedException, GitAPIException {
 
         System.out.println("Starting CDM");
-        CommandParser argParser = new CommandParser();
+        BaseCommand argParser = new BaseCommand();
 
         JCommander jc = new JCommander(argParser);
 
@@ -98,12 +98,6 @@ public class CassandraDatasetManager {
         Map<String, Dataset> data = mapper.readValue(yaml, new TypeReference<Map<String, Dataset>>() {} );
 
         CassandraDatasetManager cdm = new CassandraDatasetManager(argParser, data);
-
-        if(args.length == 0) {
-            cdm.printHelp();
-            jc.usage();
-            return;
-        }
 
         String command = jc.getParsedCommand();
 
@@ -247,7 +241,7 @@ public class CassandraDatasetManager {
             schema = path + "/schema.cql";
         }
         System.out.println("Loading schema from " + schema);
-        String address = this.host;
+        String address = command.host;
 
         Cluster cluster = Cluster.builder().addContactPoint(address).build();
         Session session = cluster.connect();
