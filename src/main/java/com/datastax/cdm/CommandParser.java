@@ -10,6 +10,7 @@ public class CommandParser {
     InstallCommand installCommand;
     NewCommand newCommand;
     ListCommand listCommand;
+    UpdateCommand updateCommand;
     JCommander jc;
 
     CommandParser(String[] args) {
@@ -25,6 +26,10 @@ public class CommandParser {
 
         listCommand = new ListCommand();
         jc.addCommand("list", listCommand);
+
+        updateCommand = new UpdateCommand();
+        jc.addCommand("update", updateCommand);
+
         jc.parse(args);
     }
 }
