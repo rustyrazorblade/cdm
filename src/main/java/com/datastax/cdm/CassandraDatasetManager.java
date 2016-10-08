@@ -163,49 +163,9 @@ public class CassandraDatasetManager {
         String path;
         String name = command.datasets.get(0);
         // temp variables that need to change depending on the dataset
+        path = getPath(cdmDir, name);
 
-        // we're dealing with a request to install a local dataset
-        if(name.equals(".")) {
-            path = System.getProperty("user.dir");
-            // do nothing here
-        } else {
-            Dataset dataset = datasets.get(name);
-            // pull the repo down
-            String repoLocation = cdmDir + name;
-            path = repoLocation;
 
-            System.out.println("Checking for repo at " + repoLocation);
-            // if the repo doesn't exist, clone it
-            File f = new File(repoLocation);
-
-            if(!f.exists()) {
-                System.out.println("Cloning " + dataset.url);
-                f.mkdir();
-
-                try {
-                    Git result = Git.cloneRepository()
-                            .setURI(dataset.url)
-                            .setDirectory(f)
-                            .call();
-                    System.out.println("Having repository: " + result.getRepository().getDirectory());
-                    // Note: the call() returns an opened repository
-                    // already which needs to be closed to avoid file handle leaks!
-                }
-                 catch (InvalidRemoteException e) {
-                    e.printStackTrace();
-                } catch (TransportException e) {
-                    e.printStackTrace();
-                } catch (GitAPIException e) {
-                    e.printStackTrace();
-                }
-
-            } else {
-                // pull the latest
-                System.out.println("Pulling latest");
-                Git repo = Git.open(f);
-                repo.pull().call();
-            }
-        }
         System.out.println("CDM is using dataset path: " + path);
 
         // all the paths
@@ -312,6 +272,52 @@ public class CassandraDatasetManager {
         System.out.println("Loading data");
     }
 
+    public String getPath(String cdmDir, String name) throws IOException, GitAPIException {
+        String path;// we're dealing with a request to install a local dataset
+        if(name.equals(".")) {
+            path = System.getProperty("user.dir");
+            // do nothing here
+        } else {
+            Dataset dataset = datasets.get(name);
+            // pull the repo down
+            String repoLocation = cdmDir + name;
+            path = repoLocation;
+
+            System.out.println("Checking for repo at " + repoLocation);
+            // if the repo doesn't exist, clone it
+            File f = new File(repoLocation);
+
+            if(!f.exists()) {
+                System.out.println("Cloning " + dataset.url);
+                f.mkdir();
+
+                try {
+                    Git result = Git.cloneRepository()
+                            .setURI(dataset.url)
+                            .setDirectory(f)
+                            .call();
+                    System.out.println("Having repository: " + result.getRepository().getDirectory());
+                    // Note: the call() returns an opened repository
+                    // already which needs to be closed to avoid file handle leaks!
+                }
+                 catch (InvalidRemoteException e) {
+                    e.printStackTrace();
+                } catch (TransportException e) {
+                    e.printStackTrace();
+                } catch (GitAPIException e) {
+                    e.printStackTrace();
+                }
+
+            } else {
+                // pull the latest
+                System.out.println("Pulling latest");
+                Git repo = Git.open(f);
+                repo.pull().call();
+            }
+        }
+        return path;
+    }
+
     public void insertRecords(Session session, String table, Iterable<CSVRecord> records, ArrayList<Field> fieldlist, int totalComplete, List<ResultSetFuture> futures) {
         for(CSVRecord record: records) {
             // generate a CQL statement
@@ -409,8 +415,5 @@ public class CassandraDatasetManager {
         for(Map.Entry<String, Dataset> dataset : datasets.entrySet()) {
             System.out.printf(format, dataset.getKey(), dataset.getValue().description);
         }
-    }
-    void printHelp() {
-        System.out.println("Put help here.");
     }
 }
