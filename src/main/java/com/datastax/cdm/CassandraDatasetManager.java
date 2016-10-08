@@ -213,17 +213,7 @@ public class CassandraDatasetManager {
         System.out.println("Schema: " + schema);
 //        String loadSchema = "cqlsh -k " + config.keyspace + " -f " + schema;
 
-        byte[] bytes = Files.readAllBytes(Paths.get(schema));
-        String[] create_tables = new String(bytes).split(";");
-        for(String c: create_tables) {
-            System.out.println("Letting schema settle...");
-            Thread.sleep(2000);
-            String tmp = c.trim();
-            if(tmp.length() > 0) {
-                System.out.println(tmp);
-                session.execute(tmp);
-            }
-        }
+        createTables(schema, session);
 
         // skip the data load
         if(command.noData) {
@@ -270,6 +260,20 @@ public class CassandraDatasetManager {
 
         cluster.close();
         System.out.println("Loading data");
+    }
+
+    private void createTables(String schema, Session session) throws IOException, InterruptedException {
+        byte[] bytes = Files.readAllBytes(Paths.get(schema));
+        String[] create_tables = new String(bytes).split(";");
+        for(String c: create_tables) {
+            System.out.println("Letting schema settle...");
+            Thread.sleep(2000);
+            String tmp = c.trim();
+            if(tmp.length() > 0) {
+                System.out.println(tmp);
+                session.execute(tmp);
+            }
+        }
     }
 
     public String getPath(String cdmDir, String name) throws IOException, GitAPIException {
