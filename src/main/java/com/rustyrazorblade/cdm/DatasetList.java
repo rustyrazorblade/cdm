@@ -1,4 +1,4 @@
-package com.datastax.cdm;
+package com.rustyrazorblade.cdm;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;

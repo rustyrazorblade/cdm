@@ -9,10 +9,6 @@ if test -n "$JAVA_HOME"; then
     java="$JAVA_HOME/bin/java"
 fi
 
-if ! hash cqlsh 2>/dev/null; then
-    echo "ERROR: cqlsh not found in path"
-    exit 0
-fi
 
 exec "$java" -Xmx1G -Xms256M $java_args -jar $MYSELF "$@"
 exit 1

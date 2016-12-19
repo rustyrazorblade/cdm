@@ -1,4 +1,4 @@
-package com.datastax.cdm;
+package com.rustyrazorblade.cdm;
 
 import static org.junit.Assert.assertEquals;
 import static org.hamcrest.CoreMatchers.containsString;

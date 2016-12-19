@@ -1,4 +1,4 @@
-package com.datastax.cdm;
+package com.rustyrazorblade.cdm;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
@@ -23,4 +23,6 @@ public class InstallCommand {
 
     @Parameter(names = {"--no-data", "--nodata"}, description = "Only set up schema")
     public Boolean noData = false; // setting this is schema only
+
+
 }

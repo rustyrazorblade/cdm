@@ -1,4 +1,4 @@
-package com.datastax.cdm;
+package com.rustyrazorblade.cdm;
 
 import java.util.List;
 

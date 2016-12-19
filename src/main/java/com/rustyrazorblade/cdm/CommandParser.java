@@ -1,4 +1,4 @@
-package com.datastax.cdm;
+package com.rustyrazorblade.cdm;
 
 import com.beust.jcommander.JCommander;
 
