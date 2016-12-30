@@ -13,6 +13,7 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
+import org.eclipse.jgit.util.SystemReader;
 
 import java.lang.StringBuilder;
 
@@ -179,41 +180,47 @@ public class CassandraDatasetManager {
 
         Config config = mapper.readValue(configFile, Config.class);
 
-        if(config.schema != null) {
-            schema = path + "/" + config.schema;
 
-        }
-        else {
-            schema = path + "/schema.cql";
-        }
-        System.out.println("Loading schema from " + schema);
         String address = command.host;
-
         Cluster cluster = Cluster.builder().addContactPoint(address).build();
         Session session = cluster.connect();
+        System.out.println("Connecting to " + address);
 
-        Integer rf = command.rf;
-        StringBuilder createKeyspace = new StringBuilder();
-        createKeyspace.append(" CREATE KEYSPACE ")
-                .append(config.keyspace)
-                .append(" WITH replication = {'class': 'SimpleStrategy', 'replication_factor': ")
-                .append(rf)
-                .append("}");
+        if(!command.noDDL) {
+            if(config.schema != null) {
+                schema = path + "/" + config.schema;
 
-        System.out.println("Dropping keyspace");
-        session.execute("DROP KEYSPACE IF EXISTS " + config.keyspace);
+            }
+            else {
+                schema = path + "/schema.cql";
+            }
+            System.out.println("Loading schema from " + schema);
+            Integer rf = command.rf;
+            StringBuilder createKeyspace = new StringBuilder();
+            createKeyspace.append(" CREATE KEYSPACE ")
+                    .append(config.keyspace)
+                    .append(" WITH replication = {'class': 'SimpleStrategy', 'replication_factor': ")
+                    .append(rf)
+                    .append("}");
 
-        Thread.sleep(2000);
+            System.out.println("Dropping keyspace");
+            session.execute("DROP KEYSPACE IF EXISTS " + config.keyspace);
 
-        System.out.println(createKeyspace);
-        session.execute(createKeyspace.toString());
+            Thread.sleep(2000);
 
-        session.execute("USE " + config.keyspace);
-        
-        System.out.println("Schema: " + schema);
+            System.out.println(createKeyspace);
+            session.execute(createKeyspace.toString());
+
+            session.execute("USE " + config.keyspace);
+
+            System.out.println("Schema: " + schema);
 //        String loadSchema = "cqlsh -k " + config.keyspace + " -f " + schema;
 
-        createTables(schema, session);
+            createTables(schema, session);
+        } else {
+            System.out.println("Skipping DDL statements");
+            session.execute("USE " + config.keyspace);
+        }
 
         // skip the data load
         try {

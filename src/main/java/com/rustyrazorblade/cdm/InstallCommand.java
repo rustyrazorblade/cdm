@@ -2,6 +2,7 @@ package com.rustyrazorblade.cdm;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +24,9 @@ public class InstallCommand {
 
     @Parameter(names = {"--no-data", "--nodata"}, description = "Only set up schema")
     public Boolean noData = false; // setting this is schema only
+
+    @Parameter(names = {"--noddl"}, description = "Do not run DDL statements")
+    public Boolean noDDL = false; // data only
 
 
 }
