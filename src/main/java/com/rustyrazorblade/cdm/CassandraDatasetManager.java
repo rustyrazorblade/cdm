@@ -89,7 +89,9 @@ public class CassandraDatasetManager {
 
         CassandraDatasetManager cdm = new CassandraDatasetManager(parser.argParser, data);
 
-        String command = parser.jc.getParsedCommand();
+        // check for the case where no arguments are passed in resulting in a null return
+        String parse_command = parser.jc.getParsedCommand();
+        String command = (parse_command == null) ? "help" : parse_command;
 
         // connect to the cluster via the driver
         switch (command) {
