@@ -25,7 +25,7 @@ class InstallCommand {
     var noData: Boolean? = false // setting this is schema only
 
     @Parameter(names = arrayOf("--noddl"), description = "Do not run DDL statements")
-    var noDDL: Boolean? = false // data only
+    var noDDL: Boolean = false // data only
 
 
 }

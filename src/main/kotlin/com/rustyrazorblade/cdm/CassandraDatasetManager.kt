@@ -33,7 +33,7 @@ class CassandraDatasetManager {
 
     inner class InvalidArgsException : Exception()
 
-    private val datasets: Map<String, Dataset>? = null
+    private var datasets: Map<String, Dataset>? = null
     private val session: Session? = null
     private val cassandraContactPoint: String = ""
     private var host: String? = null
@@ -48,7 +48,7 @@ class CassandraDatasetManager {
 
         this.host = "localhost"
         this.args = parsedArgs
-        this.datasets = Map<String, Dataset>;
+//        this.datasets = Map<String, Dataset>;
     }
 
     internal constructor(args: BaseCommand, datasets: Map<String, Dataset>) {
