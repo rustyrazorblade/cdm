@@ -2,7 +2,8 @@ package com.rustyrazorblade.cdm
 
 import org.junit.Assert.assertEquals
 import org.hamcrest.CoreMatchers.containsString
-import org.junit.Assert.assertThat
+import org.junit.Assert.*
+
 
 import org.apache.commons.csv.CSVParser
 import org.apache.commons.csv.CSVRecord

@@ -5,3 +5,5 @@ bin/
 dependency-reduced-pom.xml
 out/
 testdataset/
+/build/
+/.gradle/
