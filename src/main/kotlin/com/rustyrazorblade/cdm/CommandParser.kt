@@ -1,10 +1,60 @@
 package com.rustyrazorblade.cdm
 
 import com.beust.jcommander.JCommander
+import com.beust.jcommander.Parameter
+import com.beust.jcommander.Parameters
+import java.util.ArrayList
 
 /**
  * Created by jhaddad on 10/7/16.
  */
+
+@Parameters(commandDescription = "command")
+class BaseCommand {
+
+    @Parameter(names = arrayOf("--help"), help = true)
+    private val help: Boolean = false
+
+
+}
+
+@Parameters(commandDescription = "Install")
+class InstallCommand {
+
+    @Parameter(names = arrayOf("--host", "-h"), description = "Hostname of node in cluster")
+    var host = "localhost"
+
+    @Parameter
+    var datasets: List<String> = ArrayList()
+
+    @Parameter(names = arrayOf("--rf"), description = "Replication Factor")
+    var rf: Int? = 1
+
+    @Parameter(names = arrayOf("--no-data", "--nodata"), description = "Only set up schema")
+    var noData: Boolean? = false // setting this is schema only
+
+    @Parameter(names = arrayOf("--noddl"), description = "Do not run DDL statements")
+    var noDDL: Boolean = false // data only
+}
+
+@Parameters(commandDescription = "help")
+class HelpCommand
+
+@Parameters(commandDescription = "List Datasets")
+class ListCommand
+
+@Parameters(commandDescription = "Dump current dataset")
+class DumpCommand
+
+@Parameters(commandDescription = "New Dataset")
+class NewCommand {
+    @Parameter
+    var dataset: List<String> = ArrayList()
+}
+
+@Parameters(commandDescription = "Update datasets")
+class UpdateCommand
+
 class CommandParser internal constructor(args: Array<String>) {
     internal var argParser: BaseCommand
     internal var installCommand: InstallCommand

@@ -380,7 +380,7 @@ class CassandraDatasetManager {
     companion object {
 
 
-        private val YAML_URI = "https://raw.githubusercontent.com/riptano/cdm-java/master/datasets.yaml"
+        private val YAML_URI = "https://raw.githubusercontent.com/rustyrazorblade/cdm/master/datasets.yaml"
 
 
         @Throws(IOException::class, InterruptedException::class, GitAPIException::class)
