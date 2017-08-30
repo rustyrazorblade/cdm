@@ -13,7 +13,6 @@ import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.errors.GitAPIException
 import org.eclipse.jgit.api.errors.InvalidRemoteException
 import org.eclipse.jgit.api.errors.TransportException
-import org.eclipse.jgit.util.SystemReader
 
 import java.lang.StringBuilder
 
@@ -23,6 +22,8 @@ import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.*
+import java.util.function.Consumer
+
 
 /**
  * Created by jhaddad on 6/29/16.
@@ -33,7 +34,7 @@ class CassandraDatasetManager {
 
     inner class InvalidArgsException : Exception()
 
-    private var datasets: Map<String, Dataset>? = null
+    private var datasets: Map<String, Dataset>
     private val session: Session? = null
     private val cassandraContactPoint: String = ""
     private var host: String? = null
@@ -48,7 +49,7 @@ class CassandraDatasetManager {
 
         this.host = "localhost"
         this.args = parsedArgs
-//        this.datasets = Map<String, Dataset>;
+        this.datasets = mapOf()
     }
 
     internal constructor(args: BaseCommand, datasets: Map<String, Dataset>) {
@@ -195,13 +196,14 @@ class CassandraDatasetManager {
             val fields = StringJoiner(", ")
             val values = StringJoiner(", ")
 
-            val types = HashMap()
+            val types : MutableMap<String, String> = mutableMapOf()
 
             val fieldlist = ArrayList<Field>()
 
             for (c in columns) {
                 fields.add(c.name)
                 val ftype = c.type.name.toString()
+
                 types.put(c.name, ftype)
                 fieldlist.add(Field(c.name, ftype))
             }
@@ -247,25 +249,26 @@ class CassandraDatasetManager {
             val f = File(repoLocation)
 
             if (!f.exists()) {
-                println("Cloning " + dataset.url!!)
-                f.mkdir()
+                if (dataset != null) {
+                    println("Cloning " + dataset.url!!)
+                    f.mkdir()
 
-                try {
-                    val result = Git.cloneRepository()
-                            .setURI(dataset.url)
-                            .setDirectory(f)
-                            .call()
-                    println("Having repository: " + result.repository.directory)
-                    // Note: the call() returns an opened repository
-                    // already which needs to be closed to avoid file handle leaks!
-                } catch (e: InvalidRemoteException) {
-                    e.printStackTrace()
-                } catch (e: TransportException) {
-                    e.printStackTrace()
-                } catch (e: GitAPIException) {
-                    e.printStackTrace()
+                    try {
+                        val result = Git.cloneRepository()
+                                .setURI(dataset.url)
+                                .setDirectory(f)
+                                .call()
+                        println("Having repository: " + result.repository.directory)
+                        // Note: the call() returns an opened repository
+                        // already which needs to be closed to avoid file handle leaks!
+                    } catch (e: InvalidRemoteException) {
+                        e.printStackTrace()
+                    } catch (e: TransportException) {
+                        e.printStackTrace()
+                    } catch (e: GitAPIException) {
+                        e.printStackTrace()
+                    }
                 }
-
             } else {
                 // pull the latest
                 println("Pulling latest")
@@ -312,12 +315,7 @@ class CassandraDatasetManager {
                              record: CSVRecord,
                              fields: ArrayList<Field>): String {
 
-        val needs_quotes = HashSet()
-
-        needs_quotes.add("text")
-        needs_quotes.add("datetime")
-        needs_quotes.add("timestamp")
-
+        val needs_quotes = setOf<String>("text", "datetime", "timestamp")
 
         val query = StringBuilder("INSERT INTO ")
         query.append(table)

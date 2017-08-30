@@ -4,6 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
+
+
 import java.io.File
 import java.io.IOException
 
@@ -15,10 +19,15 @@ internal constructor(inputfile: File) {
     private val data: Map<String, Dataset>
 
     init {
-        val mapper = ObjectMapper(YAMLFactory()).registerModule(KotlinModule())
+        val mapper = jacksonObjectMapper().registerModule(KotlinModule())
+
+//        val mapper = ObjectMapper(YAMLFactory()).registerModule(KotlinModule())
 
 //        data = mapper.readValue<Map<String, Dataset>>(inputfile, Map<*, *>::class.java)
-          data = mapper.readValue<Map<String, Dataset>>(inputfile)
+
+        data = mapper.readValue(inputfile)
+
+
 
 
     }
