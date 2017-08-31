@@ -25,7 +25,6 @@ class CassandraDatasetManagerTest {
         val records = c.openCSV("data/alltypes.csv")
         val r = records.iterator().next()
 
-        val types = HashMap()
         val fieldList = ArrayList<Field>()
         fieldList.add(Field("id", "uuid"))
         fieldList.add(Field("avg", "float"))
@@ -52,5 +51,6 @@ class CassandraDatasetManagerTest {
         }
 
     }
+
 
 }
