@@ -22,7 +22,7 @@ buildscript {
 apply plugin: 'kotlin'
 apply plugin: 'application'
 
-mainClassName = 'main'
+mainClassName = 'com.rustyrazorblade.cdm.CassandraDatasetManager'
 
 sourceSets {
     main.kotlin.srcDirs += 'src/main/kotlin'
