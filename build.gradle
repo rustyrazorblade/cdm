@@ -2,7 +2,7 @@ apply plugin: 'java'
 apply plugin: 'maven'
 
 group = 'com.rustyrazorblade'
-version = '0.12'
+version = '0.12.0'
 
 description = """"""
 
